@@ -1,5 +1,11 @@
 # Offline Map Tile Downloader
 
+[![Badge: OpenStreetMap](https://img.shields.io/badge/OpenStreetMap-7EBC6F.svg?logo=openstreetmap&logoColor=white)](#readme)
+[![Badge: Linux](https://img.shields.io/badge/Linux-FCC624.svg?logo=linux&logoColor=black)](#readme)
+[![Badge: macOS](https://img.shields.io/badge/macOS-000000.svg?logo=apple&logoColor=white)](#readme)
+[![Badge: Windows](https://img.shields.io/badge/Windows-008080.svg?logoColor=white)](#readme)
+[![Badge: Go](https://img.shields.io/badge/Go-%2300ADD8.svg?logo=go&logoColor=white)](#readme)
+
 **Create your own offline maps for any location on Earth!** This tool allows you to download map tiles from various sources and use them in your offline applications, with a special focus on the needs of the **Off-Grid** and **Meshtastic** communities.
 
 Whether you're a hiker, prepper, sailor, or just someone who wants to be prepared, having access to maps when you're disconnected from the internet is crucial. This tool makes it easy to create your own custom map sets for your specific needs.
@@ -38,7 +44,7 @@ You can either download a pre-built binary for your operating system or build th
 
 The downloaded map tiles are stored in the local filesystem. The default directory is `maps`, but you can change this using the `-maps-directory` command-line option. The tiles are organized by map style, zoom level, and tile coordinates.
 
-### Command-line Options
+## Command-line Options
 
 You can also use command-line options to configure the application:
 
@@ -67,7 +73,7 @@ This tool is perfect for creating offline maps for the Meshtastic UI. Here's how
 2.  **Use with Meshtastic:**
     *   The downloaded tiles are stored in the `maps` directory. You can now use these tiles with the Meshtastic UI. For more information on how to do this, please refer to the [Meshtastic documentation](https://meshtastic.org/docs/software/meshtastic-ui/#map).
 
-### Building from Source
+## Building from Source
 
 If you're a developer or want to modify the code, you can build the application from source.
 
