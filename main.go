@@ -149,13 +149,17 @@ func main() {
 // serveHome serves the main HTML page.
 func serveHome(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	w.Write(indexHTML)
+	if _, err := w.Write(indexHTML); err != nil {
+		log.Printf("Could not write response: %v", err)
+	}
 }
 
 // getMapSources serves the available map sources as JSON.
 func getMapSources(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(mapSourcesJSON)
+	if _, err := w.Write(mapSourcesJSON); err != nil {
+		log.Printf("Could not write response: %v", err)
+	}
 }
 
 // wsHandler handles WebSocket connections.
@@ -703,7 +707,9 @@ func getCachedTiles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(cachedTiles)
+	if err := json.NewEncoder(w).Encode(cachedTiles); err != nil {
+		http.Error(w, fmt.Sprintf("Error encoding cached tiles: %v", err), http.StatusInternalServerError)
+	}
 }
 
 // getStyleName returns the name of the map style for a given URL.
