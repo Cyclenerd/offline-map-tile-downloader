@@ -435,14 +435,18 @@ func downloadTile(ctx context.Context, msgChan chan<- WSMessage, tile Tile, mapS
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			resp.Body.Close()
+			if err := resp.Body.Close(); err != nil {
+				log.Printf("Could not close response body: %v", err)
+			}
 			log.Printf("Unexpected status code %d for tile %v. Retrying...", resp.StatusCode, tile)
 			time.Sleep(time.Second * time.Duration(math.Pow(2, float64(attempt))))
 			continue
 		}
 
 		body, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Could not close response body: %v", err)
+		}
 		if err != nil {
 			log.Printf("Error reading tile body for tile %v: %v. Retrying...", tile, err)
 			time.Sleep(time.Second * time.Duration(math.Pow(2, float64(attempt))))
