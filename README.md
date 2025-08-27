@@ -40,6 +40,26 @@ You can either download a pre-built binary for your operating system or build th
 4.  Run the `offline-map-tile-downloader` executable.
 5.  Open your web browser and go to `http://localhost:8080`.
 
+### Building from Source
+
+If you're a developer or want to modify the code, you can build the application from source.
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/Cyclenerd/offline-map-tile-downloader.git
+    cd offline-map-tile-downloader
+    ```
+2.  **Build the application:**
+    ```bash
+    go build .
+    ```
+3.  **Run the application:**
+    ```bash
+    ./offline-map-tile-downloader
+    ```
+4.  **Open your web browser** and go to `http://localhost:8080`.
+
+
 ## File Storage
 
 The downloaded map tiles are stored in the local filesystem. The default directory is `maps`, but you can change this using the `-maps-directory` command-line option. The tiles are organized by map style, zoom level, and tile coordinates.
@@ -72,25 +92,6 @@ This tool is perfect for creating offline maps for the Meshtastic UI. Here's how
 
 2.  **Use with Meshtastic:**
     *   The downloaded tiles are stored in the `maps` directory. You can now use these tiles with the Meshtastic UI. For more information on how to do this, please refer to the [Meshtastic documentation](https://meshtastic.org/docs/software/meshtastic-ui/#map).
-
-## Building from Source
-
-If you're a developer or want to modify the code, you can build the application from source.
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/Cyclenerd/offline-map-tile-downloader.git
-    cd offline-map-tile-downloader
-    ```
-2.  **Build the application:**
-    ```bash
-    go build .
-    ```
-3.  **Run the application:**
-    ```bash
-    ./offline-map-tile-downloader
-    ```
-4.  **Open your web browser** and go to `http://localhost:8080`.
 
 ## Configuration
 
