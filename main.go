@@ -406,10 +406,10 @@ func downloadTile(ctx context.Context, msgChan chan<- WSMessage, tile Tile, mapS
 
 	// Construct the URL for the tile.
 	subdomain := []string{"a", "b", "c"}[rand.Intn(3)]
-	url := strings.Replace(mapStyle, "{s}", subdomain, -1)
-	url = strings.Replace(url, "{z}", fmt.Sprintf("%d", tile.Z), -1)
-	url = strings.Replace(url, "{x}", fmt.Sprintf("%d", tile.X), -1)
-	url = strings.Replace(url, "{y}", fmt.Sprintf("%d", tile.Y), -1)
+	url := strings.ReplaceAll(mapStyle, "{s}", subdomain)
+	url = strings.ReplaceAll(url, "{z}", fmt.Sprintf("%d", tile.Z))
+	url = strings.ReplaceAll(url, "{x}", fmt.Sprintf("%d", tile.X))
+	url = strings.ReplaceAll(url, "{y}", fmt.Sprintf("%d", tile.Y))
 
 	var err error
 	for attempt := 0; attempt < maxRetries; attempt++ {
