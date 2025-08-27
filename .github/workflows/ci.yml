@@ -18,6 +18,14 @@ jobs:
       - name: 🔧 Setup go
         uses: actions/setup-go@v5
 
+      - name: 🧝‍♀️ Check formatting
+        run: |
+          if [ "$(gofmt -l . | wc -l)" -gt 0 ]; then
+            echo "Go files are not formatted:"
+            gofmt -d .
+            exit 1
+          fi
+
       # https://github.com/marketplace/actions/run-golangci-lint
       - name: 🌡️ Lint
         uses: golangci/golangci-lint-action@v8
