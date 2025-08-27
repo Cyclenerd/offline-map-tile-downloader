@@ -8,6 +8,10 @@
 
 **Create your own offline maps for any location on Earth!** This tool allows you to download map tiles from various sources and use them in your offline applications, with a special focus on the needs of the **Off-Grid** and **Meshtastic** communities.
 
+| Download | Offline Mode |
+|----------|--------------|
+| ![Screenshot: Download](./img/download.png) | ![Screenshot: Offline](./img/offline.png) |
+
 Whether you're a hiker, prepper, sailor, or just someone who wants to be prepared, having access to maps when you're disconnected from the internet is crucial. This tool makes it easy to create your own custom map sets for your specific needs.
 
 ## Why?
@@ -34,11 +38,52 @@ You can either download a pre-built binary for your operating system or build th
 
 ### Pre-built Binaries (Recommended for most users)
 
-1.  Go to the [Releases page](https://github.com/Cyclenerd/offline-map-tile-downloader/releases) of this repository.
-2.  Download the latest release for your operating system (Windows, macOS, or Linux).
-3.  Unzip the downloaded file.
-4.  Run the `offline-map-tile-downloader` executable.
-5.  Open your web browser and go to `http://localhost:8080`.
+This project require you to use a command-line interface.
+Don't worry, it's easier than it looks!
+
+#### <img src="https://www.microsoft.com/favicon.ico" width=16 height=16/> Windows (PowerShell)
+
+1. [Download](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest) the `offline-map-tile-downloader.exe` application for Windows and your CPU architecture. If you are unsure, usually `x86_64` will work.
+    * [x86_64](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest/download/offline-map-tile-downloader-windows-x86_64.exe) Intel or AMD 64-Bit CPU
+    * [arm64](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest/download/offline-map-tile-downloader-windows-arm64.exe) Arm-based 64-Bit CPU
+1. Rename it to: `offline-map-tile-downloader.exe`
+1. Press the <kbd>Windows key</kbd> + <kbd>X</kbd>.
+1. Choose "Windows PowerShell".
+1. Type `cd` followed by the path to your your folder where you saved the application (e.g., `cd C:\Users\YourName\Documents\OfflineMaps`) and press Enter.
+1. Type `offline-map-tile-downloader.exe` and press Enter.
+1. Open your web browser and go to [`http://localhost:8080`](http://localhost:8080).
+
+### <img src="https://developer.apple.com/favicon.ico" width=16 height=16/> macOS (Terminal)
+
+1. [Download](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest) the `offline-map-tile-downloader` application for macOS and your CPU architecture.
+    * [x86_64](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest/download/offline-map-tile-downloader-macos-x86_64) Intel 64-bit CPU
+    * [arm64](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest/download/offline-map-tile-downloader-macos-arm64) Apple silicon 64-bit CPU (M1, M2...)
+1. Rename it to: `offline-map-tile-downloader`
+1. Press <kbd>Command</kbd> + <kbd>Space</kbd>.
+1. Type "Terminal" and press Enter.
+1. Type `cd` followed by the path to your folder where you saved the application (e.g., `cd /Users/YourName/Documents/OfflineMaps`) and press Enter.
+1. Type `chmod +x offline-map-tile-downloader` and press Enter. (This makes the tool work).
+1. Type `./offline-map-tile-downloader` and press Enter.
+1. (Optional) Allow unsigned app on macOS
+    1. Go to System Settings
+    1. Click on Privacy & Security
+    1. Scroll down to Security section
+    1. Look for a message about the blocked `offline-map-tile-downloader` app and click "Open Anyway"
+1. Open your web browser and go to [`http://localhost:8080`](http://localhost:8080).
+
+
+### <img src="https://www.kernel.org/theme/images/logos/favicon.png" width=16 height=16/> Linux (Terminal)
+
+1. [Download](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest) the `offline-map-tile-downloader` application for Linux and your CPU architecture.
+    * [x86_64](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest/download/offline-map-tile-downloader-linux-x86_64) Intel or AMD 64-Bit CPU
+    * [arm64](https://github.com/Cyclenerd/offline-map-tile-downloader/releases/latest/download/offline-map-tile-downloader-linux-arm64) Arm-based 64-Bit CPU (i.e. Raspberry Pi)
+1. Rename it to: `offline-map-tile-downloader`
+1. Open a Terminal.
+1. Type `cd` followed by the path to your your folder where you saved the application (e.g., `cd /home/YourName/OfflineMaps`) and press Enter.
+1. Type `chmod +x offline-map-tile-downloader` and press Enter. (This makes the tool work).
+1. Type `./offline-map-tile-downloader` and press Enter.
+1. Open your web browser and go to [`http://localhost:8080`](http://localhost:8080).
+
 
 ### Building from Source
 
@@ -95,7 +140,7 @@ This tool is perfect for creating offline maps for the Meshtastic UI. Here's how
 
 ## Configuration
 
-You can add your own map sources by editing the `config/map_sources.json` file. The format is simple:
+You can add your own map sources by editing the [`config/map_sources.json`](./config/map_sources.json) file. The format is simple:
 
 ```json
 {
@@ -103,6 +148,8 @@ You can add your own map sources by editing the `config/map_sources.json` file. 
   "Another Map Source": "https://another.tile.server/{z}/{x}/{y}.png"
 }
 ```
+
+To activate the change, you must recompile the application.
 
 ## Contributing
 
