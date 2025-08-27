@@ -170,7 +170,11 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Printf("Could not close websocket connection: %v", err)
+		}
+	}()
 
 	// Loop to read messages from the WebSocket connection.
 	for {
