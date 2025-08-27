@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    name: Build
+    # https://github.com/actions/virtual-environments/
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v4
+
+      # https://github.com/marketplace/actions/setup-go-environment
+      - name: 🔧 Setup go
+        uses: actions/setup-go@v5
+
+      - name: 🍳 Build
+        run: make
+
+      - name: 🌡️ Test
+        run: ./offline-map-tile-downloader --help
+
+      # Upload binaries
+      # https://github.com/marketplace/actions/upload-a-build-artifact
+      - name: 📤 Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-map-tile-downloader-artifact
+          path: offline-map-tile-downloader-*
+          retention-days: 1
+
+  test-linux:
+    name: Test Linux
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Download binaries
+      # https://github.com/marketplace/actions/download-a-build-artifact
+      - name: 📥 Download
+        uses: actions/download-artifact@v4
+        with:
+          name: offline-map-tile-downloader-artifact
+      - name: 🌡️ Test
+        run: chmod +x offline-map-tile-downloader-linux-x86_64 && ./offline-map-tile-downloader-linux-x86_64 --help
+
+  test-macos:
+    name: Test macOS
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: 📥 Download
+        uses: actions/download-artifact@v4
+        with:
+          name: offline-map-tile-downloader-artifact
+      - name: 🌡️ Test
+        run: chmod +x offline-map-tile-downloader-macos-x86_64 && ./offline-map-tile-downloader-macos-x86_64 --help
+
+  test-windows:
+    name: Test Windows
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: 📥 Download
+        uses: actions/download-artifact@v4
+        with:
+          name: offline-map-tile-downloader-artifact
+      - name: 🌡️ Test
+        run: .\offline-map-tile-downloader-windows-x86_64.exe --help
+
+  release:
+    name: Release
+    needs: [test-linux, test-macos, test-windows]
+    runs-on: ubuntu-latest
+    steps:
+      # Download all artifacts to the current working directory
+      - name: 📥 Download gcosts
+        uses: actions/download-artifact@v4
+        with:
+          name: offline-map-tile-downloader-artifact
+      # Release, upload files
+      # https://github.com/softprops/action-gh-release
+      - name: ✨ Release
+        uses: softprops/action-gh-release@v2.2.2
+        with:
+          files: |
+            offline-map-tile-downloader-linux-x86_64
+            offline-map-tile-downloader-linux-arm64
+            offline-map-tile-downloader-macos-x86_64
+            offline-map-tile-downloader-macos-arm64
+            offline-map-tile-downloader-windows-x86_64.exe
+            offline-map-tile-downloader-windows-arm64.exe
