@@ -361,10 +361,11 @@ func downloadTiles(ctx context.Context, conn *websocket.Conn, tilesToDownload []
 	ticker := time.NewTicker(time.Second / time.Duration(*rateLimit))
 	defer ticker.Stop()
 
+	DownloadLoop:
 	for _, tile := range tilesToDownload {
 		select {
 		case <-ctx.Done():
-			break
+			break DownloadLoop
 		case <-ticker.C:
 			tileChan <- tile
 		}
