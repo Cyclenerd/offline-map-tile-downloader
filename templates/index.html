@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Offline Map Tile Downloader</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="stylesheet" href="/static/leaflet.css" />
+    <link rel="stylesheet" href="/static/leaflet.draw.css" />
+    <script src="/static/leaflet.js"></script>
+    <script src="/static/leaflet.draw.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .form-container {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(234, 233, 233, 0.822);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        #progress {
+            position: absolute;
+            top: 200px;
+            right: 11px;
+            z-index: 1000;
+            background: rgba(241, 242, 243, 0.736);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 2px 4px 8px rgba(0,0.2,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div style="position: relative;">
+        <div id="map"></div>
+        <div class="form-container">
+            <form id="downloadForm">
+                <label for="map_style">Map Style:</label>
+                <select id="map_style" name="map_style"></select><br>
+                <label for="min_zoom">Min. Zoom:</label>
+                <input type="number" id="min_zoom" name="min_zoom" min="0" max="19" value="8"><br>
+                <label for="max_zoom">Max. Zoom:</label>
+                <input type="number" id="max_zoom" name="max_zoom" min="0" max="19" value="12"><br>
+                <input type="checkbox" id="view_cached_tiles">
+                <label for="view_cached_tiles">Show offline map coverage</label><br>
+                <input type="checkbox" id="use_cache" name="use_cache">
+                <label for="use_cache">Enable offline mode</label><br>
+                <input type="checkbox" id="convert_to_8bit" checked>
+                <label for="convert_to_8bit">Convert to 8-bit for Meshtastic UI</label><br>
+                <button type="button" id="downloadBtn">💾 Download Tiles</button>
+                <button type="button" id="downloadWorldBtn">🗺️ Download World Basemap</button>
+                <button type="button" id="cancelBtn" disabled>❌ Cancel Download</button>
+            </form>
+        </div>
+        <div id="progress">Ready</div>
+    </div>
+
+    <script>
+        const socket = new WebSocket(`ws://${window.location.host}/ws`);
+
+        socket.onopen = () => {
+            console.log("WebSocket connection established");
+        };
+
+        socket.onclose = () => {
+            console.log("WebSocket connection closed");
+        };
+
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
+        var map = L.map('map');
+        var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                map.setView([lat, lng], 13);
+            }, function() {
+                map.setView([53.55, 10], 11);
+            });
+        } else {
+            map.setView([53.55, 10], 11);
+        }
+
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        var drawControl = new L.Control.Draw({
+            draw: { polygon: true, marker: false, circle: false, circlemarker: false, polyline: false, rectangle: true },
+            edit: { featureGroup: drawnItems }
+        });
+        map.addControl(drawControl);
+
+        map.on('draw:created', function(e) {
+            drawnItems.addLayer(e.layer);
+            document.getElementById('downloadBtn').disabled = drawnItems.getLayers().length === 0;
+        });
+
+        map.on('draw:deleted', function() {
+            document.getElementById('downloadBtn').disabled = drawnItems.getLayers().length === 0;
+        });
+
+        var missingTilesLayer = L.layerGroup().addTo(map);
+        var cachedTilesLayer = L.layerGroup().addTo(map);
+        var downloadProgressLayer = L.layerGroup().addTo(map);
+
+        function onTileError(e) {
+            var coords = e.coords;
+            var z = coords.z;
+            var x = coords.x;
+            var y = coords.y;
+            var topLeft = map.unproject([x * 256, y * 256], z);
+            var bottomRight = map.unproject([(x + 1) * 256, (y + 1) * 256], z);
+            var bounds = L.latLngBounds(topLeft, bottomRight);
+            L.rectangle(bounds, { color: "red", weight: 1, fill: false }).addTo(missingTilesLayer);
+        }
+
+        function sanitizeStyleName(name) {
+            name = name.replace(/\s+/g, '-');
+            name = name.replace(/[^a-zA-Z0-9-_]/g, '');
+            return name;
+        }
+
+        function updateTileLayer() {
+            var mapStyleSelect = document.getElementById('map_style');
+            var mapStyleUrl = mapStyleSelect.value;
+            var styleName = sanitizeStyleName(mapStyleSelect.options[mapStyleSelect.selectedIndex].text);
+            var useCache = document.getElementById('use_cache').checked;
+            var tileUrl = useCache ? `/tiles/${styleName}/{z}/{x}/{y}.png` : mapStyleUrl;
+            tileLayer.setUrl(tileUrl);
+            tileLayer.off('loading');
+            tileLayer.off('tileerror', onTileError);
+            missingTilesLayer.clearLayers();
+            if (useCache) {
+                tileLayer.on('loading', function() {
+                    missingTilesLayer.clearLayers();
+                });
+                tileLayer.on('tileerror', onTileError);
+            }
+        }
+
+        fetch('/get_map_sources')
+            .then(response => response.json())
+            .then(data => {
+                var select = document.getElementById('map_style');
+                for (var name in data) {
+                    var option = document.createElement('option');
+                    option.value = data[name];
+                    option.text = name;
+                    select.appendChild(option);
+                }
+                updateTileLayer();
+            });
+
+        document.getElementById('map_style').addEventListener('change', function() {
+            updateTileLayer();
+            if (document.getElementById('view_cached_tiles').checked) {
+                showCachedTiles();
+            }
+        });
+        document.getElementById('use_cache').addEventListener('change', updateTileLayer);
+
+        const minZoomInput = document.getElementById('min_zoom');
+        const maxZoomInput = document.getElementById('max_zoom');
+
+        minZoomInput.addEventListener('change', function() {
+            if (parseInt(this.value) > parseInt(maxZoomInput.value)) {
+                maxZoomInput.value = this.value;
+            }
+        });
+
+        maxZoomInput.addEventListener('change', function() {
+            if (parseInt(this.value) < parseInt(minZoomInput.value)) {
+                minZoomInput.value = this.value;
+            }
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            var polygons = [];
+            drawnItems.eachLayer(function(layer) {
+                if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+                    var latlngs = layer.getLatLngs()[0];
+                    polygons.push(latlngs.map(function(latlng) { return {lat: latlng.lat, lng: latlng.lng}; }));
+                }
+            });
+            if (polygons.length === 0) {
+                alert('Please draw at least one shape.');
+                return;
+            }
+            var data = {
+                type: 'start_download',
+                data: {
+                    polygons: polygons,
+                    min_zoom: parseInt(document.getElementById('min_zoom').value),
+                    max_zoom: parseInt(document.getElementById('max_zoom').value),
+                    map_style: document.getElementById('map_style').value,
+                    convert_to_8bit: document.getElementById('convert_to_8bit').checked
+                }
+            };
+            console.log('Sending download request with data:', JSON.stringify(data, null, 2));
+            socket.send(JSON.stringify(data));
+        });
+
+        document.getElementById('downloadWorldBtn').addEventListener('click', function() {
+            var data = {
+                type: 'start_world_download',
+                data: {
+                    map_style: document.getElementById('map_style').value,
+                    convert_to_8bit: document.getElementById('convert_to_8bit').checked
+                }
+            };
+            socket.send(JSON.stringify(data));
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            socket.send(JSON.stringify({type: 'cancel_download'}));
+        });
+
+        document.getElementById('view_cached_tiles').addEventListener('change', function() {
+            if (this.checked) {
+                showCachedTiles();
+            } else {
+                cachedTilesLayer.clearLayers();
+            }
+        });
+
+        function showCachedTiles() {
+            cachedTilesLayer.clearLayers();
+            var mapStyleSelect = document.getElementById('map_style');
+            var styleName = sanitizeStyleName(mapStyleSelect.options[mapStyleSelect.selectedIndex].text);
+            fetch(`/get_cached_tiles/${styleName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data) return;
+                    data.forEach(function(tile) {
+                        var z = tile[0], x = tile[1], y = tile[2];
+                        var topLeft = map.unproject([x * 256, y * 256], z);
+                        var bottomRight = map.unproject([(x + 1) * 256, (y + 1) * 256], z);
+                        var bounds = L.latLngBounds(topLeft, bottomRight);
+                        L.rectangle(bounds, { color: "#0000ff", weight: 1, fill: false }).addTo(cachedTilesLayer);
+                    });
+                });
+        }
+
+        var totalTiles = 0;
+        var downloadedTiles = 0;
+        var skippedTiles = 0;
+        var failedTiles = 0;
+
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            const data = message.data;
+
+            switch (message.type) {
+                case 'download_started':
+                    totalTiles = data.total_tiles;
+                    downloadedTiles = 0;
+                    skippedTiles = 0;
+                    failedTiles = 0;
+                    downloadProgressLayer.clearLayers();
+                    document.getElementById('downloadBtn').disabled = true;
+                    document.getElementById('downloadWorldBtn').disabled = true;
+                    document.getElementById('cancelBtn').disabled = false;
+                    updateProgress();
+                    break;
+                case 'tile_downloaded':
+                    downloadedTiles++;
+                    updateProgress();
+                    var bounds = [[data.south, data.west], [data.north, data.east]];
+                    L.rectangle(bounds, { color: "#ff7800", weight: 1, fill: false }).addTo(downloadProgressLayer);
+                    break;
+                case 'tile_skipped':
+                    skippedTiles++;
+                    updateProgress();
+                    var bounds = [[data.south, data.west], [data.north, data.east]];
+                    L.rectangle(bounds, { color: "#00ff00", weight: 1, fill: false }).addTo(downloadProgressLayer);
+                    break;
+                case 'tile_failed':
+                    failedTiles++;
+                    updateProgress();
+                    break;
+                case 'download_complete':
+                    document.getElementById('downloadBtn').disabled = false;
+                    document.getElementById('downloadWorldBtn').disabled = false;
+                    document.getElementById('cancelBtn').disabled = true;
+                    downloadProgressLayer.clearLayers();
+                    var summary = `✅ Download complete!<br>` +
+                                  `Downloaded: ${downloadedTiles}<br>` +
+                                  `Skipped: ${skippedTiles}<br>` +
+                                  `Failed: ${failedTiles}<br>` +
+                                  `Total queued: ${totalTiles}`;
+                    document.getElementById('progress').innerHTML = summary;
+                    break;
+                case 'download_cancelled':
+                    document.getElementById('downloadBtn').disabled = false;
+                    document.getElementById('downloadWorldBtn').disabled = false;
+                    document.getElementById('cancelBtn').disabled = true;
+                    downloadProgressLayer.clearLayers();
+                    document.getElementById('progress').innerHTML = 'Ready';
+                    alert('Download cancelled');
+                    break;
+                case 'error':
+                    document.getElementById('downloadBtn').disabled = false;
+                    document.getElementById('downloadWorldBtn').disabled = false;
+                    document.getElementById('cancelBtn').disabled = true;
+                    document.getElementById('progress').innerHTML = 'Ready';
+                    alert(data.message);
+                    break;
+            }
+        };
+
+        function updateProgress() {
+            if (totalTiles === 0) {
+                document.getElementById('progress').innerHTML = 'Starting...';
+                return;
+            }
+            var progress = ((downloadedTiles + skippedTiles + failedTiles) / totalTiles * 100).toFixed(2);
+            var progressText = `⏳ Downloading: ${progress}%<br>` +
+                               `Downloaded: ${downloadedTiles}<br>` +
+                               `Skipped: ${skippedTiles}<br>` +
+                               `Failed: ${failedTiles}<br>` +
+                               `Total queued: ${totalTiles}`;
+            document.getElementById('progress').innerHTML = progressText;
+        }
+    </script>
+</body>
+</html>

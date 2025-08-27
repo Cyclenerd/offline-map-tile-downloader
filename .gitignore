@@ -1,0 +1,29 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+offline-map-tile-downloader*
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when run with the
+# -o option to specify an output file.
+*.out
+
+# Dependency directories (remove the comment below if you do not vendor)
+# vendor/
+
+# Go workspace file
+go.work
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+
+# Tile cache
+maps/

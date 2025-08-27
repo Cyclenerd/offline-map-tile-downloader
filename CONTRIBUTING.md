@@ -24,7 +24,7 @@ in your GitHub account.
 Clone your newly created fork of the repository to your local machine with the following command:
 
 ```bash
-git clone https://github.com/your-username/template.git
+git clone https://github.com/your-username/offline-map-tile-downloader.git
 ```
 
 ## Create a New Branch 🌿
@@ -37,6 +37,7 @@ git checkout -b "feature-or-issue-name"
 ```
 
 ## Submitting Changes 🚀
+
 Make your desired changes to the codebase.
 
 Stage your changes using the following command:
@@ -58,12 +59,20 @@ This will open a new pull request to the original repository.
 
 ## Coding Style 📝
 
-Start reading the code, and you'll get the hang of it. It is optimized for readability:
+This project follows standard Go coding conventions. Before submitting your changes, please ensure that your code is formatted with `gofmt`.
 
-- Variables must be uppercase and should begin with `MY_`.
-- Functions must be lowercase.
-- Check your shell scripts with ShellCheck before submitting.
-- Please use tabs to indent.
+Most editors for Go will format your code automatically on save. You can also run `gofmt` manually:
+
+```bash
+gofmt -w .
+```
+
+In addition to `gofmt`, please follow these guidelines:
+
+- Write clear and concise comments where necessary.
+- Follow the naming conventions established in the existing code.
+- Keep functions and methods short and focused on a single task.
+- Handle errors explicitly and avoid panicking.
 
 ## Keep It Simple 👍
 
