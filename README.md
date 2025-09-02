@@ -148,7 +148,7 @@ This tool is perfect for creating offline maps for the Ripple Firmware. Here's h
     *   Click "Download Tiles".
 
 2.  **Use with Ripple Firmware:**
-    *   The downloaded tiles are stored in the `maps` directory. You can now use these tiles with the Ripple firmware. Copy the subfolder named after the selected map style to an SD card and rename it `tiles`. For more information on how to do this, please refer to the [MeshRipple Firmwaretastic documentation](https://buymeacoffee.com/ripplebiz/ultra-v7-7-guide-meshcore-users).
+    *   The downloaded tiles are stored in the `maps` directory. You can now use these tiles with the Ripple firmware. Copy the subfolder named after the selected map style to an SD card and rename it `tiles`. For more information on how to do this, please refer to the [MeshRipple Firmware documentation](https://buymeacoffee.com/ripplebiz/ultra-v7-7-guide-meshcore-users).
 
 ## Configuration
 
