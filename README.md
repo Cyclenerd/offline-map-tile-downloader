@@ -6,7 +6,7 @@
 [![Badge: Windows](https://img.shields.io/badge/Windows-008080.svg?logoColor=white)](#readme)
 [![Badge: Go](https://img.shields.io/badge/Go-%2300ADD8.svg?logo=go&logoColor=white)](#readme)
 
-**Create your own offline maps for any location on Earth!** This tool allows you to download map tiles from various sources and use them in your offline applications, with a special focus on the needs of the **Off-Grid** and **Meshtastic** communities.
+**Create your own offline maps for any location on Earth!** This tool allows you to download map tiles from various sources and use them in your offline applications, with a special focus on the needs of the **Off-Grid**, **Meshtastic** and **MeshCore** communities.
 
 | Download | Offline Mode |
 |----------|--------------|
@@ -19,7 +19,7 @@ Whether you're a hiker, prepper, sailor, or just someone who wants to be prepare
 In a world that's increasingly reliant on internet connectivity, being able to access information offline is a superpower. This is especially true for:
 
 *   **The Off-Grid Community:** When you're living off the grid, you can't rely on a stable internet connection. This tool allows you to have detailed maps of your surroundings, which is essential for navigation, resource management, and safety.
-*   **The Meshtastic Community:** Meshtastic is a fantastic open-source, off-grid, decentralized, mesh networking project. It allows you to send messages and other data over long distances without needing the internet. This tool allows you to create custom map tiles that can be used with the Meshtastic UI, giving you a visual representation of your mesh network on a map, even when you're completely offline.
+*   **The Meshtastic and MeshCore Community:** This tool allows you to create custom map tiles that can be used with the Meshtastic UI or MeshCore Ripple Firmware, giving you a visual representation of your mesh network on a map, even when you're completely offline.
 
 ## Features
 
@@ -28,7 +28,7 @@ In a world that's increasingly reliant on internet connectivity, being able to a
 *   **Concurrent Downloads:** Downloads multiple tiles concurrently for faster performance.
 *   **Rate Limiting:** Limits the number of tile downloads per second to avoid overloading the tile server.
 *   **Cancellable Downloads:** Cancel ongoing downloads at any time.
-*   **8-bit PNG Conversion:** Option to convert downloaded tiles to 8-bit PNGs, ideal for devices with limited color palettes like the Meshtastic UI.
+*   **8-bit PNG Conversion:** Option to convert downloaded tiles to 8-bit PNGs, ideal for devices with limited color palettes like the Meshtastic UI and Ripple Firmware.
 *   **Offline Tile Server:** Serve downloaded tiles directly from the application, allowing you to use them in offline map applications.
 *   **Cross-platform:** Works on Windows, macOS, and Linux.
 
@@ -126,7 +126,7 @@ Example:
 ./offline-map-tile-downloader -port 8081 -maps-directory my-tile-cache -max-workers 5 -rate-limit 25
 ```
 
-## Meshtastic Integration
+## Meshtastic UI Integration
 
 This tool is perfect for creating offline maps for the Meshtastic UI. Here's how to do it:
 
@@ -137,6 +137,18 @@ This tool is perfect for creating offline maps for the Meshtastic UI. Here's how
 
 2.  **Use with Meshtastic:**
     *   The downloaded tiles are stored in the `maps` directory. You can now use these tiles with the Meshtastic UI. For more information on how to do this, please refer to the [Meshtastic documentation](https://meshtastic.org/docs/software/meshtastic-ui/#map).
+
+## MeshCore Ripple Firmware Integration
+
+This tool is perfect for creating offline maps for the Ripple Firmware. Here's how to do it:
+
+1.  **Download the tiles:**
+    *   Select the area you want to download.
+    *   **Check the "Convert to 8-bit" checkbox.** This is recommended for the Ripple firmware to save storage space.
+    *   Click "Download Tiles".
+
+2.  **Use with Ripple Firmware:**
+    *   The downloaded tiles are stored in the `maps` directory. You can now use these tiles with the Ripple firmware. Copy the subfolder named after the selected map style to an SD card and rename it `tiles`. For more information on how to do this, please refer to the [MeshRipple Firmwaretastic documentation](https://buymeacoffee.com/ripplebiz/ultra-v7-7-guide-meshcore-users).
 
 ## Configuration
 
