@@ -85,7 +85,7 @@ jobs:
       # Release, upload files
       # https://github.com/softprops/action-gh-release
       - name: ✨ Release
-        uses: softprops/action-gh-release@v2.2.2
+        uses: softprops/action-gh-release@v2.3.3
         with:
           files: |
             offline-map-tile-downloader-linux-x86_64
