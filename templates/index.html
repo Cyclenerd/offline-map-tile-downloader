@@ -48,6 +48,11 @@
     <div style="position: relative;">
         <div id="map"></div>
         <div class="form-container">
+            <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
+                <label for="coord_search">Go to Coordinates:</label><br>
+                <input type="text" id="coord_search" placeholder="lat, lng (e.g. lat, lng)" style="width: 200px;">
+                <button type="button" id="goToBtn">Go</button>
+            </div>
             <form id="downloadForm">
                 <label for="map_style">Map Style:</label>
                 <select id="map_style" name="map_style"></select><br>
@@ -84,23 +89,35 @@
             console.error("WebSocket error:", error);
         };
 
-        var map = L.map('map');
+        var map = L.map('map').setView([38.406535, -110.790705], 13);
         var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19
         }).addTo(map);
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var lat = position.coords.latitude;
-                var lng = position.coords.longitude;
-                map.setView([lat, lng], 13);
-            }, function() {
-                map.setView([53.55, 10], 11);
-            });
-        } else {
-            map.setView([53.55, 10], 11);
-        }
+        // Coordinate search functionality
+        document.getElementById('goToBtn').addEventListener('click', function() {
+            var input = document.getElementById('coord_search').value.trim();
+            var parts = input.split(',');
+            if (parts.length === 2) {
+                var lat = parseFloat(parts[0].trim());
+                var lng = parseFloat(parts[1].trim());
+                if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                    map.setView([lat, lng], 13);
+                } else {
+                    alert('Invalid coordinates. Latitude must be -90 to 90, longitude must be -180 to 180.');
+                }
+            } else {
+                alert('Please enter coordinates in format: lat, lng');
+            }
+        });
+
+        document.getElementById('coord_search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('goToBtn').click();
+            }
+        });
 
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
