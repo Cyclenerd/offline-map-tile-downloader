@@ -28,7 +28,7 @@ jobs:
       # Upload binaries
       # https://github.com/marketplace/actions/upload-a-build-artifact
       - name: 📤 Upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: offline-map-tile-downloader-artifact
           path: offline-map-tile-downloader-*
