@@ -50,7 +50,7 @@
         <div class="form-container">
             <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
                 <label for="coord_search">Go to Coordinates:</label><br>
-                <input type="text" id="coord_search" placeholder="lat, lng (e.g. lat, lng)" style="width: 200px;">
+                <input type="text" id="coord_search" placeholder="lat, lng (e.g. 53.55, 10)" style="width: 200px;">
                 <button type="button" id="goToBtn">Go</button>
             </div>
             <form id="downloadForm">
@@ -89,7 +89,7 @@
             console.error("WebSocket error:", error);
         };
 
-        var map = L.map('map').setView([38.406535, -110.790705], 13);
+        var map = L.map('map').setView([53.55, 10], 13);
         var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19
