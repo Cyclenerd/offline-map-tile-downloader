@@ -42,7 +42,7 @@ jobs:
       # Download binaries
       # https://github.com/marketplace/actions/download-a-build-artifact
       - name: 📥 Download
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: offline-map-tile-downloader-artifact
       - name: 🌡️ Test
@@ -54,7 +54,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: 📥 Download
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: offline-map-tile-downloader-artifact
       - name: 🌡️ Test
@@ -66,7 +66,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: 📥 Download
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: offline-map-tile-downloader-artifact
       - name: 🌡️ Test
@@ -79,7 +79,7 @@ jobs:
     steps:
       # Download all artifacts to the current working directory
       - name: 📥 Download gcosts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: offline-map-tile-downloader-artifact
       # Release, upload files
