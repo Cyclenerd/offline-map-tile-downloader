@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -56,6 +57,26 @@ var (
 	maxRetries       *int
 	userAgent        *string
 )
+
+// generateUserAgent returns a basic user agent that identifies as a tile downloader
+func generateUserAgent() string {
+	osName := runtime.GOOS
+	var osInfo string
+
+	switch osName {
+	case "darwin":
+		osInfo = "Macintosh"
+	case "linux":
+		osInfo = "Linux"
+	case "windows":
+		osInfo = "Windows"
+	default:
+		osInfo = osName
+	}
+
+	version := time.Now().Format("060102")
+	return fmt.Sprintf("mesh/%s (%s)", version, osInfo)
+}
 
 // Tile represents a single map tile with X, Y coordinates and zoom level Z.
 type Tile struct {
@@ -99,10 +120,10 @@ func main() {
 	// Command line flags
 	port := flag.Int("port", 8080, "Port number for the server")
 	cacheDir = flag.String("maps-directory", "maps", "Directory for storing map tiles. This is where the downloaded tiles will be saved.")
-	maxWorkers = flag.Int("max-workers", 10, "Number of concurrent download workers")
-	rateLimit = flag.Int("rate-limit", 50, "Maximum number of tiles to download per second")
+	maxWorkers = flag.Int("max-workers", 4, "Number of concurrent download workers (max: 10)")
+	rateLimit = flag.Int("rate-limit", 10, "Maximum number of tiles to download per second (max: 50)")
 	maxRetries = flag.Int("max-retries", 3, "Maximum number of retries for downloading a tile")
-	userAgent = flag.String("user-agent", "MapTileDownloader/1.0 (Go)", "User-Agent header for HTTP requests")
+	userAgent = flag.String("user-agent", generateUserAgent(), "User-Agent header for HTTP requests")
 	help := flag.Bool("help", false, "Show help message")
 
 	flag.Parse()
@@ -110,6 +131,14 @@ func main() {
 	if *help {
 		flag.Usage()
 		return
+	}
+
+	if *maxWorkers > 10 {
+		log.Fatalf("max-workers cannot exceed 10 (got %d)", *maxWorkers)
+	}
+
+	if *rateLimit > 50 {
+		log.Fatalf("rate-limit cannot exceed 50 (got %d)", *rateLimit)
 	}
 
 	// Create cache directory if it doesn't exist.
@@ -428,7 +457,13 @@ func downloadTile(ctx context.Context, msgChan chan<- WSMessage, tile Tile, mapS
 			time.Sleep(time.Second * time.Duration(math.Pow(2, float64(attempt))))
 			continue
 		}
+
+		// Set basic headers
 		req.Header.Set("User-Agent", *userAgent)
+		req.Header.Set("Accept", "image/*")
+
+		// Add small random delay between requests (100-300ms)
+		time.Sleep(time.Millisecond * time.Duration(100+rand.Intn(200)))
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {

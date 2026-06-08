@@ -109,7 +109,7 @@ If you're a developer or want to modify the code, you can build the application 
 
 **Please use this tool responsibly!** When downloading map tiles:
 
-*   **Respect tile server limits:** Use reasonable rate limits to avoid overloading map tile servers. The default rate limit is 50 tiles per second, which is conservative for most servers.
+*   **Respect tile server limits:** Use reasonable rate limits to avoid overloading map tile servers. The default rate limit is 10 tiles per second, which is conservative for most servers.
 *   **Avoid excessive downloads:** Only download the areas and zoom levels you actually need. Downloading entire continents at high zoom levels can generate millions of tiles.
 *   **Check terms of service:** Review the terms of service of the map tile provider you're using. Some providers have specific restrictions on bulk downloading.
 *   **Risk of being banned:** Aggressive downloading patterns can result in your IP address being temporarily or permanently banned from tile servers.
@@ -127,16 +127,33 @@ You can also use command-line options to configure the application:
 
 *   `-port`: The port number for the server (default: `8080`).
 *   `-maps-directory`: The directory for cached map tiles (default: `maps`).
-*   `-max-workers`: The number of concurrent download workers (default: `10`).
-*   `-rate-limit`: The maximum number of tiles to download per second (default: `50`).
+*   `-max-workers`: The number of concurrent download workers (default: `4`, max: `10`). Lower values are more respectful to tile servers.
+*   `-rate-limit`: The maximum number of tiles to download per second (default: `10`, max: `50`). Keep this low to avoid being blocked.
 *   `-max-retries`: The maximum number of retries for downloading a tile (default: `3`).
-*   `-user-agent`: User-Agent header for HTTP requests (default: `MapTileDownloader/1.0 (Go)`).
+*   `-user-agent`: User-Agent header for HTTP requests (default: `mesh/YYMMDD (OS)` where date changes daily).
 *   `-help`: Show the help message.
+
+**Being respectful to tile servers:**
+- Uses conservative default rate limits (10 tiles/sec, 4 workers)
+- Adds random delays (100-300ms) between requests to avoid hammering servers
+- Identifies itself honestly as a tile downloader
+- Respects retry limits with exponential backoff
+
+**To reduce load further (recommended):**
+
+```bash
+./offline-map-tile-downloader -max-workers 2 -rate-limit 5
+```
+
+**Important:** Always respect the tile server's Terms of Service and usage policies. Many servers have usage limits. Consider:
+- Using lower rate limits for large downloads
+- Downloading during off-peak hours
+- Setting up your own tile server for heavy usage
 
 Example:
 
 ```bash
-./offline-map-tile-downloader -port 8081 -maps-directory my-tile-cache -max-workers 5 -rate-limit 25
+./offline-map-tile-downloader -port 8081 -maps-directory my-tile-cache -max-workers 2 -rate-limit 5
 ```
 
 ## Meshtastic UI Integration
