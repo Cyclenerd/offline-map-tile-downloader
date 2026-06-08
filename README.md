@@ -105,6 +105,18 @@ If you're a developer or want to modify the code, you can build the application 
 4.  **Open your web browser** and go to `http://localhost:8080`.
 
 
+## Responsible Usage
+
+**Please use this tool responsibly!** When downloading map tiles:
+
+*   **Respect tile server limits:** Use reasonable rate limits to avoid overloading map tile servers. The default rate limit is 50 tiles per second, which is conservative for most servers.
+*   **Avoid excessive downloads:** Only download the areas and zoom levels you actually need. Downloading entire continents at high zoom levels can generate millions of tiles.
+*   **Check terms of service:** Review the terms of service of the map tile provider you're using. Some providers have specific restrictions on bulk downloading.
+*   **Risk of being banned:** Aggressive downloading patterns can result in your IP address being temporarily or permanently banned from tile servers.
+*   **Consider self-hosting:** For large-scale or repeated downloads, consider setting up your own tile server.
+
+The default settings are designed to be respectful of tile servers, but you can adjust them based on your specific needs and the tile provider's policies.
+
 ## File Storage
 
 The downloaded map tiles are stored in the local filesystem. The default directory is `maps`, but you can change this using the `-maps-directory` command-line option. The tiles are organized by map style, zoom level, and tile coordinates.
@@ -118,6 +130,7 @@ You can also use command-line options to configure the application:
 *   `-max-workers`: The number of concurrent download workers (default: `10`).
 *   `-rate-limit`: The maximum number of tiles to download per second (default: `50`).
 *   `-max-retries`: The maximum number of retries for downloading a tile (default: `3`).
+*   `-user-agent`: User-Agent header for HTTP requests (default: `MapTileDownloader/1.0 (Go)`).
 *   `-help`: Show the help message.
 
 Example:

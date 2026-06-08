@@ -54,6 +54,7 @@ var (
 	maxWorkers       *int
 	rateLimit        *int
 	maxRetries       *int
+	userAgent        *string
 )
 
 // Tile represents a single map tile with X, Y coordinates and zoom level Z.
@@ -101,6 +102,7 @@ func main() {
 	maxWorkers = flag.Int("max-workers", 10, "Number of concurrent download workers")
 	rateLimit = flag.Int("rate-limit", 50, "Maximum number of tiles to download per second")
 	maxRetries = flag.Int("max-retries", 3, "Maximum number of retries for downloading a tile")
+	userAgent = flag.String("user-agent", "MapTileDownloader/1.0 (Go)", "User-Agent header for HTTP requests")
 	help := flag.Bool("help", false, "Show help message")
 
 	flag.Parse()
@@ -426,7 +428,7 @@ func downloadTile(ctx context.Context, msgChan chan<- WSMessage, tile Tile, mapS
 			time.Sleep(time.Second * time.Duration(math.Pow(2, float64(attempt))))
 			continue
 		}
-		req.Header.Set("User-Agent", "MapTileDownloader/1.0 (Go)")
+		req.Header.Set("User-Agent", *userAgent)
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
