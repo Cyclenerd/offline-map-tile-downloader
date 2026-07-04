@@ -50,7 +50,7 @@ Don't worry, it's easier than it looks!
 1. Press the <kbd>Windows key</kbd> + <kbd>X</kbd>.
 1. Choose "Windows PowerShell".
 1. Type `cd` followed by the path to your your folder where you saved the application (e.g., `cd C:\Users\YourName\Documents\OfflineMaps`) and press Enter.
-1. Type `offline-map-tile-downloader.exe` and press Enter.
+1. Type `.\offline-map-tile-downloader.exe` and press Enter.
 1. Open your web browser and go to [`http://localhost:8080`](http://localhost:8080).
 
 ### <img src="https://developer.apple.com/favicon.ico" width=16 height=16/> macOS (Terminal)
