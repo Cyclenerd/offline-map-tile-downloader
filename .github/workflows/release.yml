@@ -58,7 +58,7 @@ jobs:
         with:
           name: offline-map-tile-downloader-artifact
       - name: 🌡️ Test
-        run: chmod +x offline-map-tile-downloader-macos-x86_64 && ./offline-map-tile-downloader-macos-x86_64 --help
+        run: chmod +x offline-map-tile-downloader-macos-arm64 && ./offline-map-tile-downloader-macos-arm64 --help
 
   test-windows:
     name: Test Windows
